@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="fyp_scaneat_cc">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Google Maps -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCMZKdQOTemg6cjTRiQ41SAOn2jlr6qGSM"></script>
+
+  <!-- Dynamsoft Barcode Reader -->
+  <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@9.6.42/dist/dbr.js"></script>
+  
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <title>ScanEat Map</title>
+  <link rel="manifest" href="manifest.json">
+
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    const serviceWorkerVersion = null;
+  </script>
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter.js" defer></script>
+
+  <script>
+    // Initialize Dynamsoft Barcode Reader
+    let barcodeReader = null;
+
+    async function initBarcodeReader() {
+      try {
+        // Set license
+        Dynamsoft.DBR.BarcodeReader.license = 'DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzNDYzODQwLVRYbFFjbTlxIiwibWFpblNlcnZlclVSTCI6Imh0dHBzOi8vbWRscy5keW5hbXNvZnRvbmxpbmUuY29tIiwib3JnYW5pemF0aW9uSUQiOiIxMDM0NjM4NDAiLCJzdGFuZGJ5U2VydmVyVVJMIjoiaHR0cHM6Ly9zZGxzLmR5bmFtc29mdG9ubGluZS5jb20iLCJjaGVja0NvZGUiOjM5NzQ2NzM2MX0=';
+
+        // Load the library
+        await Dynamsoft.DBR.BarcodeReader.loadWasm();
+
+        // Create instance
+        barcodeReader = await Dynamsoft.DBR.BarcodeReader.createInstance();
+
+        // Configure for PDF417
+        await barcodeReader.updateRuntimeSettings({
+          BarcodeFormatIds: Dynamsoft.DBR.EnumBarcodeFormat.PDF417,
+          LocalizationModes: [
+            Dynamsoft.DBR.EnumLocalizationMode.CONNECTED_BLOCKS,
+          ],
+          DeblurLevel: 5
+        });
+
+        // Make the instance available globally
+        window.barcodeReader = barcodeReader;
+
+        console.log('Dynamsoft Barcode Reader initialized successfully');
+        return true;
+      } catch (ex) {
+        console.error('Error initializing Dynamsoft Barcode Reader:', ex);
+        return false;
+      }
+    }
+
+    // Initialize when the page loads
+    window.addEventListener('DOMContentLoaded', async function() {
+      if (typeof Dynamsoft !== 'undefined') {
+        await initBarcodeReader();
+      } else {
+        console.error('Dynamsoft library not loaded');
+      }
+    });
+
+    // Cleanup when the page unloads
+    window.addEventListener('beforeunload', function() {
+      if (barcodeReader) {
+        barcodeReader.destroy();
+        barcodeReader = null;
+      }
+    });
+  </script>
+</head>
+<body>
+  <script>
+    window.addEventListener('load', function(ev) {
+      // Download main.dart.js
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
